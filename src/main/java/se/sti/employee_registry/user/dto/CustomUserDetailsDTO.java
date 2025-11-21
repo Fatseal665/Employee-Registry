@@ -2,20 +2,21 @@ package se.sti.employee_registry.user.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import se.sti.employee_registry.security.rules.*;
+import se.sti.employee_registry.security.rules.EmailRules;
+import se.sti.employee_registry.security.rules.PasswordRules;
+import se.sti.employee_registry.security.rules.RolesRules;
 import se.sti.employee_registry.user.authority.UserRole;
 
 import java.util.Set;
 
-public record CustomUserResponseDTO(
-        @Valid
-        FirstnameRules firstName,
+public record CustomUserDetailsDTO(
 
-        @Valid
-        LastnameRules lastName,
 
         @Valid
         EmailRules email,
+
+        @Valid
+        PasswordRules password,
 
         @NotNull boolean isAccountNonExistent,
         @NotNull boolean isAccountNonLocked,
@@ -24,5 +25,6 @@ public record CustomUserResponseDTO(
 
         @Valid
         RolesRules roles
+
 ) {
 }
