@@ -9,7 +9,7 @@ public class RabbitConfig {
 
     public static final String QUEUE_NAME = "email-queue";
     public static final String EXCHANGE_NAME = "email-exchange";
-    public static final String ROUTING_KEY = "email-routing-key";
+    public static final String ROUTING_KEY = "value-routing-key";
 
     @Bean
     public Queue emailQueue() {

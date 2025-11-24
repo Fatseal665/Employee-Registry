@@ -13,7 +13,7 @@ public record PasswordRules (
                         ".+$",
                 message = "Password must contain at least one uppercase, one lowercase, one digit, and one special character"
         )
-        @Size(max = 80, message = "Maximum password length has exceeded")
-        String password
+        @Size(max = 80, message = "Maximum value length has exceeded")
+        String value
 ) {
 }

@@ -12,6 +12,6 @@ public record RolesRules (
                 regexp = "^(EMPLOYEE|ADMIN)",
                 message = "Must be a valid role"
         )
-        Set<UserRole> roles
+        Set<UserRole> value
 ){
 }

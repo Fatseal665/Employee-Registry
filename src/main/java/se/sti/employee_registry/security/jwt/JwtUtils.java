@@ -28,7 +28,7 @@ public class JwtUtils {
     }
 
     public String generateJwtToken(CustomUser customUser) {
-        log.debug("Generate JWT token for {} with roles: {}", customUser.getEmail(),customUser.getRoles());
+        log.debug("Generate JWT token for {} with value: {}", customUser.getEmail(),customUser.getRoles());
 
         List<String> roles = customUser.getRoles().stream().map(
                 userRole -> userRole.getRoleName()

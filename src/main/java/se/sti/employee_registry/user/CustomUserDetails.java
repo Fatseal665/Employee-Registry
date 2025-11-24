@@ -1,10 +1,7 @@
 package se.sti.employee_registry.user;
 
-import org.hibernate.annotations.DialectOverride;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 import se.sti.employee_registry.user.dto.CustomUserDetailsDTO;
 
 import java.util.Collection;
@@ -14,10 +11,10 @@ import java.util.Set;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final CustomUserDetailsDTO customUser;
+    private final CustomUserDetailsDTO customUserDTO;
 
-    public CustomUserDetails(CustomUserDetailsDTO customUser) {
-        this.customUser = customUser;
+    public CustomUserDetails(CustomUserDetailsDTO customUserDTO) {
+        this.customUserDTO = customUserDTO;
     }
 
 
@@ -25,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         final Set<GrantedAuthority> authorities = new HashSet<>();
 
-        customUser.roles().roles().forEach(
+        customUserDTO.roles().value().forEach(
                 userRole -> authorities.addAll(userRole.getGrantedAuthorities())
         );
         return Collections.unmodifiableSet(authorities);
@@ -33,36 +30,36 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return customUser.password().password();
+        return customUserDTO.password().value();
     }
 
     @Override
     public String getUsername() {
-        return customUser.email().email();
+        return customUserDTO.email().value();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return customUser.isAccountNonExistent();
+        return customUserDTO.isAccountNonExistent();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return customUser.isAccountNonLocked();
+        return customUserDTO.isAccountNonLocked();
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return customUser.isCredentialsNonExpired();
+        return customUserDTO.isCredentialsNonExpired();
     }
 
     @Override
     public boolean isEnabled() {
-        return customUser.isEnabled();
+        return customUserDTO.isEnabled();
     }
 
-    public CustomUserDetailsDTO getCustomUser() {
-        return customUser;
+    public CustomUserDetailsDTO getCustomUserDTO() {
+        return customUserDTO;
     }
 
 }

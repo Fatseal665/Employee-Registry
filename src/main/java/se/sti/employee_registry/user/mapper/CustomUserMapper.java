@@ -13,15 +13,15 @@ public class CustomUserMapper {
     public CustomUser toEntity(CustomUserCreationDTO customUserCreationDTO) {
 
         return new CustomUser(
-                customUserCreationDTO.firstName().firstName(),
-                customUserCreationDTO.lastName().lastName(),
-                customUserCreationDTO.email().email(),
-                customUserCreationDTO.password().password(),
+                customUserCreationDTO.firstName().value(),
+                customUserCreationDTO.lastName().value(),
+                customUserCreationDTO.email().value(),
+                customUserCreationDTO.password().value(),
                 customUserCreationDTO.isCredentialsNonExpired(),
                 customUserCreationDTO.isAccountNonLocked(),
                 customUserCreationDTO.isCredentialsNonExpired(),
                 customUserCreationDTO.isEnabled(),
-                customUserCreationDTO.roles().roles()
+                customUserCreationDTO.roles().value()
         );
     }
 
