@@ -22,7 +22,7 @@ public class JwtUtils {
     private final SecretKey key;
     private final int jwtExpirationInMs = (int) TimeUnit.MINUTES.toMillis(10);
 
-    public JwtUtils(@Value("${BASE64_ENCODED_SECRET_KEY}") String base64EncodedSecretKey) {
+    public JwtUtils(@Value("${app.security-key}") String base64EncodedSecretKey) {
         byte[] keyBytes = Base64.getDecoder().decode(base64EncodedSecretKey);
         key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -42,28 +42,33 @@ public class JwtUtils {
                 .signWith(key)
                 .compact();
 
-        log.debug("JWT generatio successfully for user: {}", customUser.getEmail());
+        log.debug("JWT generation successfully for user: {}", customUser.getEmail());
         return token;
 
     }
 
-    public String getUsernameFromJwtToken(String token) {
+    public String getEmailFromJwtToken(String token) {
         try {
             Claims claims = Jwts.parser()
                     .verifyWith(key)
                     .build()
                     .parseEncryptedClaims(token)
                     .getPayload();
-            String username = claims.getSubject();
-            log.debug("Extract username '{}' from token", username);
-            return username;
+            String email = claims.getSubject();
+            log.debug("Extract email '{}' from token", email);
+            return email;
         } catch (Exception e) {
-            log.error("Failed to extract username from tocken: {}", e.getMessage());
+            log.error("Failed to extract email from token: {}", e.getMessage());
             return null;
         }
     }
 
     public boolean validateJwtToken(String authToken) {
+
+        if (authToken == null || authToken.isEmpty()) {
+            return false;
+        }
+
         try {
             Jwts.parser()
                     .verifyWith(key)

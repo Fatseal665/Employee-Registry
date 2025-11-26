@@ -49,4 +49,18 @@ public class CustomUserMapper {
         );
     }
 
+    public CustomUser detailDTOToEntity(CustomUserDetailsDTO customUserDetailsDTO) {
+        return new CustomUser(
+                "",
+                "",
+                customUserDetailsDTO.email().value(),
+                customUserDetailsDTO.password().value(),
+                customUserDetailsDTO.isAccountNonExistent(),
+                customUserDetailsDTO.isAccountNonLocked(),
+                customUserDetailsDTO.isCredentialsNonExpired(),
+                customUserDetailsDTO.isEnabled(),
+                customUserDetailsDTO.roles().value()
+                );
+    }
+
 }

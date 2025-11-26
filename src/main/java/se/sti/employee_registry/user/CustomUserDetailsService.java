@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import se.sti.employee_registry.user.dto.CustomUserDetailsDTO;
 import se.sti.employee_registry.user.mapper.CustomUserMapper;
 
-import java.util.Collections;
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -24,10 +22,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        CustomUserDetailsDTO customUser = customUserMapper.toUserDetailsDTO( customUserRepository.findUserByFirstName(username)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        CustomUserDetailsDTO customUser = customUserMapper.toUserDetailsDTO( customUserRepository.findUserByEmail(email)
                 .orElseThrow(
-                        () -> new UsernameNotFoundException(String.format("User %s not found", username))
+                        () -> new UsernameNotFoundException(String.format("User %s not found", email))
                 ));
         return new CustomUserDetails(customUser);
     }

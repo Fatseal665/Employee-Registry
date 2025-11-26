@@ -1,5 +1,6 @@
 package se.sti.employee_registry.security.jwt;
 
+import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -15,21 +16,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import reactor.util.annotation.NonNull;
 import se.sti.employee_registry.user.CustomUserDetailsService;
 
 import java.io.IOException;
 
 @Component
-public class JwtAuthentiactionFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthentiactionFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtUtils jwtUtils;
     private final CustomUserDetailsService customUserDetailsService;
 
     @Autowired
-    public JwtAuthentiactionFilter(JwtUtils jwtUtils, CustomUserDetailsService customUserDetailsService) {
+    public JwtAuthenticationFilter(JwtUtils jwtUtils, CustomUserDetailsService customUserDetailsService) {
         this.jwtUtils = jwtUtils;
         this.customUserDetailsService = customUserDetailsService;
     }
@@ -53,7 +53,7 @@ public class JwtAuthentiactionFilter extends OncePerRequestFilter {
         }
 
         if (jwtUtils.validateJwtToken(token)){
-            String username = jwtUtils.getUsernameFromJwtToken(token);
+            String username = jwtUtils.getEmailFromJwtToken(token);
 
             if (username != null&& SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
