@@ -1,6 +1,7 @@
 package se.sti.employee_registry.user;
 
 import jakarta.persistence.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import se.sti.employee_registry.user.authority.UserRole;
 
 import java.util.Set;
@@ -77,8 +78,8 @@ public class CustomUser {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String password, PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(password);
     }
 
     public boolean isAccountNonExistent() {

@@ -3,9 +3,7 @@ package se.sti.employee_registry.user.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import se.sti.employee_registry.security.rules.*;
-import se.sti.employee_registry.user.authority.UserRole;
 
-import java.util.Set;
 
 public record CustomUserCreationDTO(
         @Valid
