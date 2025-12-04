@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class CustomViewController {
 
     private final CustomUserRepository customUserRepository;
