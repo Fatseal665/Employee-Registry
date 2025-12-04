@@ -78,7 +78,7 @@ public class AuthenticationRestController {
         Cookie cookie = new Cookie("authToken", token);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // ✅ change to true in production (HTTPS only)
-        cookie.setAttribute("SameSite", "Lax"); // CSRF protection
+        cookie.setAttribute("SameSite", "Lax");
         cookie.setPath("/");
         cookie.setMaxAge(3600); // 1 hour
         response.addCookie(cookie);

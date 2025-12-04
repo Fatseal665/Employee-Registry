@@ -1,5 +1,7 @@
 package se.sti.employee_registry.view;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,14 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import se.sti.employee_registry.user.CustomUser;
 import se.sti.employee_registry.user.CustomUserRepository;
 import se.sti.employee_registry.user.authority.UserRole;
+import se.sti.employee_registry.user.dto.AdminCommandDTO;
 import se.sti.employee_registry.user.dto.CustomUserCreationDTO;
-import se.sti.employee_registry.user.dto.CustomUserLoginDTO;
 import se.sti.employee_registry.user.dto.CustomUserResponseDTO;
 import se.sti.employee_registry.user.mapper.CustomUserMapper;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -36,29 +38,32 @@ public class CustomViewController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/login")
-    public void login(@RequestBody @Valid CustomUserLoginDTO dto) {
-    }
-
     @PostMapping("/logout")
-    public void logout() {
-    }
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("authToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // ✅ ändra till true i produktion
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        cookie.setAttribute("SameSite", "Lax");
 
-    @GetMapping("/admin")
-    public String adminPage() {
-        return "Admin access granted";
-    }
+        response.addCookie(cookie);
 
-    @DeleteMapping("/admin/delete/{id}")
-    public ResponseEntity<Void> adminDelete(@PathVariable UUID id) {
-        if (!customUserRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        customUserRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/register")
+    @GetMapping("/get-all")
+    public ResponseEntity<List<CustomUserResponseDTO>> getAll() {
+        List<CustomUserResponseDTO> users = customUserRepository.findAll()
+                .stream()
+                .map(customUserMapper::toResponseDTO)
+                .toList();
+        return ResponseEntity.ok(users);
+    }
+
+
+    //ADMIN COMMANDS
+    @PostMapping("/admin/register")
     public ResponseEntity<Void> registerUser(
             @Valid @RequestBody CustomUserCreationDTO dto,
             BindingResult bindingResult
@@ -75,11 +80,33 @@ public class CustomViewController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/get-all")
-    public List<CustomUserResponseDTO> getAll() {
-        return customUserRepository.findAll()
-                .stream()
-                .map(customUserMapper::toResponseDTO)
-                .toList();
+    @DeleteMapping("/admin/delete")
+    public ResponseEntity<Void> adminDelete(@RequestBody @Valid AdminCommandDTO dto) {
+        if (!customUserRepository.existsById(dto.id())) {
+            return ResponseEntity.notFound().build();
+        }
+
+        customUserRepository.deleteById(dto.id());
+        return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/admin/update-status")
+    public ResponseEntity<Void> updateUserStatus(@RequestBody @Valid AdminCommandDTO dto) {
+        Optional<CustomUser> optionalUser = customUserRepository.findById(dto.id());
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        CustomUser user = optionalUser.get();
+
+        user.setAccountNonExistent(dto.isAccountNonExistent());
+        user.setAccountNonLocked(dto.isAccountNonLocked());
+        user.setCredentialsNonExpired(dto.isCredentialsNonExpired());
+        user.setEnabled(dto.isEnabled());
+
+        customUserRepository.save(user);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
