@@ -49,10 +49,9 @@ public class AppSecurityConfig {
         http
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/","/api/login", "/api/logout", "/api/admin/register").permitAll()
-                        .requestMatchers("/debug/**","/api/get-all").permitAll()
-//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/employee-registry", "/api/get-all").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/","/api/login", "/api/logout").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/get-all").hasAnyRole("EMPLOYEE", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
