@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import se.sti.employee_registry.publisher.EmailPublisher;
 import se.sti.employee_registry.user.CustomUser;
 import se.sti.employee_registry.user.CustomUserRepository;
 import se.sti.employee_registry.user.authority.UserRole;
@@ -19,7 +20,6 @@ import se.sti.employee_registry.user.mapper.CustomUserMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -28,15 +28,18 @@ public class CustomViewController {
     private final CustomUserRepository customUserRepository;
     private final CustomUserMapper customUserMapper;
     private final PasswordEncoder passwordEncoder;
+    private final EmailPublisher emailPublisher;
 
     public CustomViewController(
             CustomUserRepository customUserRepository,
             CustomUserMapper customUserMapper,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            EmailPublisher emailPublisher
     ) {
         this.customUserRepository = customUserRepository;
         this.customUserMapper = customUserMapper;
         this.passwordEncoder = passwordEncoder;
+        this.emailPublisher = emailPublisher;
     }
 
     @PostMapping("/logout")
@@ -79,16 +82,26 @@ public class CustomViewController {
         user.setRoles(Set.of(UserRole.EMPLOYEE));
         customUserRepository.save(user);
 
+        String username = user.getFirstName() + " " + user.getLastName();
+        emailPublisher.sendUserCreated(user.getEmail(), username);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/admin/delete/{id}")
-    public ResponseEntity<Void> adminDelete(@PathVariable UUID id) {
-        if (!customUserRepository.existsById(id)) {
+    @DeleteMapping("/admin/delete")
+    public ResponseEntity<Void> adminDelete(@RequestBody @Valid AdminCommandDTO dto) {
+        Optional<CustomUser> optionalUser = customUserRepository.findById(dto.id());
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        customUserRepository.deleteById(id);
+        CustomUser user = optionalUser.get();
+        customUserRepository.deleteById(dto.id());
+
+        // Skicka event till RabbitMQ
+        String username = user.getFirstName() + " " + user.getLastName();
+        emailPublisher.sendUserDeleted(user.getEmail(), username);
+
         return ResponseEntity.noContent().build();
     }
 

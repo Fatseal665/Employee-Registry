@@ -20,7 +20,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.customUserMapper = customUserMapper;
     }
 
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         CustomUserDetailsDTO customUser = customUserMapper.toUserDetailsDTO( customUserRepository.findUserByEmail(email)
