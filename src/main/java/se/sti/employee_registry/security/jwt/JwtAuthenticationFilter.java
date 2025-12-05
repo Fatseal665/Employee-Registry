@@ -43,13 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         log.debug("-----JWTAuthenticationFilter Start-------");
 
-        String token = extractJwtFromCookie(request);
-        if (token != null) {
-            token = extractJwtFromCookie(request);
+        String token = jwtUtils.extractJwtFromCookie(request);
+        if (token == null) {
+            token = jwtUtils.extractJwtFromRequest(request);
         }
 
-        if(token != null) {
+        if(token == null) {
             log.debug("token i null");
+            System.out.println("token i null");
         }
 
         if (jwtUtils.validateJwtToken(token)){
@@ -79,23 +80,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
         log.debug("-----JWTAuthenticationFilter End-------");
-    }
-    public String extractJwtFromCookie(HttpServletRequest request){
-
-        if (request.getCookies() == null) return null;
-        for (Cookie cookie : request.getCookies()) {
-            if("authToken".equals(cookie.getName())){
-                return cookie.getValue();
-            }
-        }
-        return null;
-    }
-
-    public String extractJwtFromRequest(HttpServletRequest request) {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
-        }
-        return null;
     }
 }

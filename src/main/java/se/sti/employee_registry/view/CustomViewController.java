@@ -19,6 +19,7 @@ import se.sti.employee_registry.user.mapper.CustomUserMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -39,7 +40,8 @@ public class CustomViewController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
+    public ResponseEntity<Void> logout( HttpServletResponse response) {
+
         Cookie cookie = new Cookie("authToken", null);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // ✅ ändra till true i produktion
@@ -80,13 +82,13 @@ public class CustomViewController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/admin/delete")
-    public ResponseEntity<Void> adminDelete(@RequestBody @Valid AdminCommandDTO dto) {
-        if (!customUserRepository.existsById(dto.id())) {
+    @DeleteMapping("/admin/delete/{id}")
+    public ResponseEntity<Void> adminDelete(@PathVariable UUID id) {
+        if (!customUserRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
 
-        customUserRepository.deleteById(dto.id());
+        customUserRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 

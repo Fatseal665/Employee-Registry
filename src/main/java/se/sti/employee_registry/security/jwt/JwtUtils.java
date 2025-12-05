@@ -2,10 +2,13 @@ package se.sti.employee_registry.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import se.sti.employee_registry.user.CustomUser;
 
@@ -29,7 +32,7 @@ public class JwtUtils {
 
     public String generateJwtToken(CustomUser customUser) {
         log.debug("Generate JWT token for {} with value: {}", customUser.getEmail(),customUser.getRoles());
-
+        System.out.println("debug JWTToken: " + customUser.getEmail());
         List<String> roles = customUser.getRoles().stream().map(
                 userRole -> userRole.getRoleName()
         ).toList();
@@ -52,7 +55,7 @@ public class JwtUtils {
             Claims claims = Jwts.parser()
                     .verifyWith(key)
                     .build()
-                    .parseEncryptedClaims(token)
+                    .parseSignedClaims(token)
                     .getPayload();
             String email = claims.getSubject();
             log.debug("Extract email '{}' from token", email);
@@ -73,7 +76,7 @@ public class JwtUtils {
             Jwts.parser()
                     .verifyWith(key)
                     .build()
-                    .parseClaimsJws(authToken);
+                    .parseSignedClaims(authToken);
 
             log.debug("Jwt token validated");
             return true;
@@ -81,5 +84,25 @@ public class JwtUtils {
             log.error("Jwt token validation failed: {}", e.getMessage());
         }
         return false;
+    }
+
+
+     public String extractJwtFromCookie(HttpServletRequest request){
+
+        if (request.getCookies() == null) return null;
+        for (Cookie cookie : request.getCookies()) {
+            if("authToken".equals(cookie.getName())){
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    public String extractJwtFromRequest(HttpServletRequest request) {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
     }
 }

@@ -49,15 +49,17 @@ public class AppSecurityConfig {
         http
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/","/api/login", "/api/logout").permitAll()
-                        .requestMatchers("/debug/**","/api/get-all").permitAll()
-                        .requestMatchers("/api/admin/**","api/admin/register").hasRole("ADMIN")
-                        .requestMatchers("/employee-registry").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/","/login", "/api/logout").permitAll()
+                        .requestMatchers("/debug/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/employee-registry","/api/get-all").hasAnyRole("EMPLOYEE", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout.disable()    // 🔥 stänger av all default logout
+                );
 
         return http.build();
     }
